@@ -69,7 +69,7 @@ def lambda_handler(event, context):
 
             elif path == LOGOUT_COMPLETE:
                 return response(render_template("auth_logged_out.html"), headers={
-                    "Set-Cookie": f"{SESSION_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"
+                    "Set-Cookie": f"{SESSION_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=None"
                 })
 
         # simple authorisation test
