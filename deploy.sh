@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
 set -e  # halt on error
 
-# Publishing serverless applications using the AWS SAM CLI
+# To deploy using this shell script, you need to have installed AWS SAM CLI (see link below)
+# as well as created a .env file with the following contents:
+#   export AWS_PROFILE=<aws profile name for the aws cli>
+#   export STACK_NAME=<a name for the aws stack>
+#   export AUTHORITY=<authority URL of the AAD application>
+#   export CLIENT_ID=<AAD application (client) ID>
+#   export CLIENT_SECRET=<AAD application secret>
+
 # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-publishing-applications.html
 
-source .env # export {AWS_PROFILE, STACK_NAME, AUTHORITY, CLIENT_ID, CLIENT_SECRET}
+source .env
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 S3_BUCKET_NAME="aws-sam-sourcebucket-${AWS_ACCOUNT_ID}"
 PACKAGE_NAME="./deploy/lambda_package.zip"
 
-rm -rf {deploy,package}
+rm -rf {deploy,package}  # clean start
 
 mkdir -p {deploy,package}
 
@@ -34,4 +41,4 @@ sam deploy \
 
 rm -rf {deploy,package}  # clean-up
 
-echo "Configure the AAD application Redirect URI, Logout URL and Home page URL as per the README."
+echo "Configure the AAD application Redirect URI, Logout URL and Home page URL with the HttpApiUrl."

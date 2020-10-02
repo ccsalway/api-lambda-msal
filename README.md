@@ -5,23 +5,27 @@ Acronyms: AAD - Azure Active Directory, DDB - DynamoDB
 
 ## Setup
 
-- Ensure DDB table exists in the account you will deploy this lambda to - see below for DDB setup
-- Fork this repo for your new webapp
-- Create your views in `lambda_views.py` - see file for examples
-- Create an AAD application without a `Redirect URI` - you will add this later  
-- Publish your webapp lambda with the IAM permissions shown below and the following
+Prerequisites
+1. Ensure DDB table exists in the account you will deploy your application to - see below for DDB setup
+2. Create an AAD application without a `Redirect URI` - you will add this later  
+
+Setup - _see `deploy.sh` which can perform steps 3,4,5 for you_
+1. Fork this repo for your new webapp
+2. Create your views in `src/lambda_views.py` - see file for examples
+3. Create an IAM Role for the lambda to assume with the permission given below
+4. Upload your app and assign the Lambda the IAM Role from the previous step, and the following
  environment variables from the AAD application:
     - `AUTHORITY` - https://login.microsoftonline.com/[Directory (tenant) ID]
     - `CLIENT_ID` - [Application (client) ID]
     - `CLIENT_SECRET` - (you will need to create one in the app under Certificates & secrets)
-- Create an AWS HTTP API Gateway (2.0) and route `ALL /{proxy+}` to the Lambda  
-- Setup DNS if using it
-- Update the following fields in the AAD application:
-  - `Branding / Home page URL` - set to `https://{domain name}`
-  - `Authentication / Redirect URI` - add `https://{domain name}/auth/login/callback`
-  - `Authentication / Logout URL` - set to `https://{domain name}/auth/logout/callback`
-  
-  
+5. Create an AWS HTTP API Gateway (2.0) and route `ALL /{proxy+}` to the Lambda
+6. Setup Route53 (DNS) if using it
+7. Update the following fields in the AAD application:
+    - `Branding / Home page URL` - set to `https://{domain_name}`
+    - `Authentication / Redirect URI` - add `https://{domain_name}/auth/login/callback`
+    - `Authentication / Logout URL` - set to `https://{domain_name}/auth/logout/callback`
+
+
 ## Process
 
 ### Login 
