@@ -1,0 +1,7 @@
+.idea/
+venv/
+deploy/
+package/
+
+.DS_Store
+.env

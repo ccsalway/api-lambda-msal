@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Homepage</title>
+</head>
+<body>
+<h5>Welcome {{ user.get('name') }} &lt;{{ user.get('preferred_username') }}&gt;</h5>
+<a href="{{ config.LOGOUT_PATH }}">Logout of Azure</a>
+</body>
+</html>
