@@ -4,8 +4,6 @@ import lambda_views
 from lambda_helper import *
 from session_dynamodb import DynamoDbSessionInterface
 
-Session = DynamoDbSessionInterface(DYNAMODB_SESSIONS_TABLE)
-
 
 def lambda_handler(event, context):
     print(event)
@@ -19,15 +17,11 @@ def lambda_handler(event, context):
         cookies = request['cookies']
         qs_data = request['query_data']
 
-        # read or create session
-        session = Session.open(cookies.get(SESSION_COOKIE_NAME))
+        # initialise a session
+        session = DynamoDbSessionInterface(DYNAMODB_SESSIONS_TABLE)
 
         # auth path handlers
         if method == 'GET':
-
-            if path == '/favicon.ico':
-                # prevent a session being saved just for favicon requests
-                return {'statusCode': 404}
 
             if path == LOGIN_PATH:
                 session.create({'referer': unquote_plus(qs_data.get('referer', '/'))}).save()
@@ -37,9 +31,9 @@ def lambda_handler(event, context):
                 })
 
             elif path == LOGIN_CALLBACK:
-                if qs_data.get('state') != session.session_id:  # mismatched session id
-                    if request['querystring']: request['path'] += f"?{request['querystring']}"
-                    return redirect(f"{LOGIN_PATH}?referer={quote_plus(request['path'])}")
+                session.open(cookies.get(SESSION_COOKIE_NAME))
+                if qs_data.get('state') != session.session_id:  # possible session forgery
+                    return redirect(LOGIN_PATH)
                 if "error" in qs_data:  # Authentication/Authorization failure
                     return response(render_template("auth_error.html", result=qs_data), headers={
                         'Content-Type': "text/html"
@@ -60,6 +54,8 @@ def lambda_handler(event, context):
                         session.data["token_cache"] = cache.serialize()
                     session.save()
                     return redirect(session.data.get('referer', '/'))
+                # invalid callback, redirect to login
+                return redirect(LOGIN_PATH)
 
             elif path == LOGOUT_PATH:
                 post_logout_redirect_uri = quote_plus(request['url'] + LOGOUT_COMPLETE)
@@ -69,7 +65,7 @@ def lambda_handler(event, context):
                 if 'sid' in qs_data:
                     session.delete_sid(qs_data['sid'])
                 if SESSION_COOKIE_NAME in cookies:
-                    session.delete()
+                    session.delete(cookies[SESSION_COOKIE_NAME])
                 return {'statusCode': 200}
 
             elif path == LOGOUT_COMPLETE:
@@ -78,7 +74,8 @@ def lambda_handler(event, context):
                     "Set-Cookie": f"{SESSION_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"
                 })
 
-        # simple authorized test
+        # simple authorisation test
+        session.open(cookies.get(SESSION_COOKIE_NAME))
         if not session.data.get('user'):
             if request['querystring']: request['path'] += f"?{request['querystring']}"
             return redirect(f"{LOGIN_PATH}?referer={quote_plus(request['path'])}")

@@ -28,20 +28,26 @@ class DynamoDbSessionInterface:
         self.table = table
         self.sid_index_name = sid_index_name
 
-    def json_serialize(self, o):
+    def _json_serialize(self, o):
         if isinstance(o, (datetime.date, datetime.datetime)):
             return o.isoformat()
         if isinstance(o, decimal.Decimal):
             return float(o)
         return str(o)
 
-    def generate_id(self):
+    def _generate_id(self):
         # your session is only as secure as your cookie so make it long
         return urandom(64).hex()
 
+    def clear(self):
+        self.session_id = None
+        self.session_state = 'null'
+        self.data = {}
+        return self
+
     def create(self, data: dict = None):
         if data is None: data = {}
-        self.session_id = self.generate_id()  # assigned to the users cookie
+        self.session_id = self._generate_id()  # assigned to the users cookie
         self.session_state = 'null'  # a reference to the users session in Azure
         self.data = data
         return self
@@ -54,6 +60,7 @@ class DynamoDbSessionInterface:
             )
             if 'Item' in response:
                 item = {k: deserializer.deserialize(v) for k, v in response['Item'].items()}
+                self.item = item
                 self.session_id = item['id']
                 self.session_state = item['sid']
                 self.data = item['data']
@@ -75,11 +82,18 @@ class DynamoDbSessionInterface:
         )
         return self
 
-    def delete(self):
-        ddb.delete_item(
-            TableName=self.table,
-            Key={"id": {"S": self.session_id}}
-        )
+    def delete(self, session_id: str = None):
+        if session_id:
+            ddb.delete_item(
+                TableName=self.table,
+                Key={"id": {"S": session_id}}
+            )
+        elif self.session_id:
+            ddb.delete_item(
+                TableName=self.table,
+                Key={"id": {"S": self.session_id}}
+            )
+        return self.clear()
 
     def delete_sid(self, sid: str):
         # When a user signs out of Azure (Single-Sign-Out), Azure sends a request to this app to
@@ -106,4 +120,4 @@ class DynamoDbSessionInterface:
         }
 
     def __str__(self):
-        return json.dumps(self.get(), default=self.json_serialize)
+        return json.dumps(self.get(), default=self._json_serialize)
