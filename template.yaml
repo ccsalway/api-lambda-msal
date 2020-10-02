@@ -1,5 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
+Parameters:
+  Authority:
+    Type: String
+  ClientID:
+    Type: String
+  ClientSecret:
+    Type: String
 Resources:
   lambdaFunction:
     Type: AWS::Serverless::Function
@@ -10,9 +17,9 @@ Resources:
       Timeout: 60
       Environment:
         Variables:
-          AUTHORITY: https://login.microsoftonline.com/68b865d5-cf18-4b2b-82a4-a4eddb9c5237
-          CLIENT_ID: 82fe467c-55ca-4f53-b68f-b0e29abec4f6
-          CLIENT_SECRET: GuLTVI9Ml4.77GR1q~pgj~1AY8Whs-~qP1
+          AUTHORITY: !Ref Authority
+          CLIENT_ID: !Ref ClientID
+          CLIENT_SECRET: !Ref ClientSecret
       Policies:
         - Version: '2012-10-17'
           Statement:
@@ -27,7 +34,7 @@ Resources:
                 - arn:aws:dynamodb:*:*:table/lambda_sessions
       Events:
         ApiEvent:
-          Type: Api
+          Type: HttpApi
           Properties:
             Method: ANY
             Path: /{proxy+}

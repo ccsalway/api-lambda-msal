@@ -1,5 +1,4 @@
 .idea/
-.aws-sam/
 venv/
 deploy/
 package/
