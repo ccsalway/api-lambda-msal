@@ -25,4 +25,4 @@ def router(request, session):
         pass
 
     # default
-    return response('Page Not Found', code=404)
+    return response("Page Not Found", code=404)
