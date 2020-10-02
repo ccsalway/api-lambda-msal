@@ -24,7 +24,10 @@ def lambda_handler(event, context):
         if method == 'GET':
 
             if path == LOGIN_PATH:
-                session.create({'referer': unquote_plus(qs_data.get('referer', '/'))}).save()
+                session.create({
+                    'source_ip': request['source_ip'],
+                    'referer': unquote_plus(qs_data.get('referer', '/'))
+                }).save()
                 redirect_uri = request['url'] + LOGIN_CALLBACK
                 return redirect(build_auth_url(session.session_id, SCOPE, redirect_uri), headers={
                     "Set-Cookie": f"{SESSION_COOKIE_NAME}={session.session_id};path=/",

@@ -56,6 +56,9 @@ def parse_request(event):
     # build url
     url = f"{headers.get('x-forwarded-proto')}://{request['domainName']}:{headers.get('x-forwarded-port')}"
 
+    # get source ip
+    source_ip = headers.get('X-Forwarded-For')
+
     # get version
     version = event.get('version', '1.0')
 
@@ -67,10 +70,12 @@ def parse_request(event):
         path = event['path'] if not stage else event['path'].replace(f"/{stage}", '', 1) or '/'
         method = event['httpMethod']
         cookies = {k: v for k, v in (c.strip().split('=', 1) for c in headers.get('cookie', '').split(';'))}
+        if not source_ip: source_ip = request['identity']['sourceIp']
     elif version == '2.0':
         path = event['rawPath'] if not stage else event['rawPath'].replace(f"/{stage}", '', 1) or '/'
         method = request['http']['method']
         cookies = {k: v for k, v in (c.split('=', 1) for c in event.get('cookies', []))}
+        if not source_ip: source_ip = request['http']['sourceIp']
     else:
         raise Exception(f"Unhandled version: {version}")
 
@@ -100,7 +105,8 @@ def parse_request(event):
         'cookies': cookies,
         'form_data': form_data,
         'query_data': query_data,
-        'querystring': querystring
+        'querystring': querystring,
+        'source_ip': source_ip
     }
 
 
