@@ -10,6 +10,7 @@ Session = DynamoDbSessionInterface(DYNAMODB_SESSIONS_TABLE)
 def lambda_handler(event, context):
     print(event)
     try:
+        # parse the request
         request = parse_request(event)
 
         # extract values
@@ -83,7 +84,7 @@ def lambda_handler(event, context):
             return redirect(f"{LOGIN_PATH}?referer={quote_plus(request['path'])}")
 
         # logged in, continue to your app
-        return lambda_views.index(session)
+        return lambda_views.router(request, session)
 
     except UserWarning as e:
         print(str(e))

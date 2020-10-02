@@ -91,6 +91,7 @@ def parse_request(event):
 
     # return data
     return {
+        'event': event,
         'stage': stage,
         'url': url,
         'path': path,
