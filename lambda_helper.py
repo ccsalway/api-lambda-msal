@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import json
 from base64 import b64decode
 from urllib.parse import parse_qsl, urlencode
@@ -14,7 +15,6 @@ jinja = Environment(
 )
 
 
-# Helper functions
 def render_template(template: str, **params):
     return jinja.get_template(template).render(params)
 
@@ -22,6 +22,9 @@ def render_template(template: str, **params):
 def json_serialize(o):
     if isinstance(o, (datetime.date, datetime.datetime)):
         return o.isoformat()
+    if isinstance(o, decimal.Decimal):
+        return float(o)
+    return str(o)
 
 
 # MSAL functions
@@ -110,31 +113,36 @@ def parse_request(event):
     }
 
 
-def response(body=None, headers: dict = None, code: int = 200):
+def response(body: str = '', base64_encoded: bool = False, headers: dict = None, code: int = 200):
     if headers is None: headers = {}
-    resp = {
+    return {
         'statusCode': code,
         'headers': {
             'Access-Control-Allow-Origin': "*",
-            'Content-Type': "application/json" if isinstance(body, dict) else "text/plain",
+            'Content-Type': 'text/html',
             **headers  # case sensitive key update
         },
-        'body': json.dumps(body, default=json_serialize) if isinstance(body, dict) else body or '',
-        'isBase64Encoded': False
+        'body': body,
+        'isBase64Encoded': base64_encoded
     }
+
+
+def response_json(body: dict, headers: dict = None, code: int = 200):
+    if headers is None: headers = {}
+    resp = response(
+        code=code,
+        body=json.dumps(body, default=json_serialize),
+        headers={'Content-Type': "application/json", **headers}
+    )
     print(resp)
     return resp
 
 
 def redirect(url: str, headers: dict = None, code: int = 302):
     if headers is None: headers = {}
-    resp = {
-        'statusCode': code,
-        'headers': {
-            'Access-Control-Allow-Origin': "*",
-            'Location': url,
-            **headers  # case sensitive key update
-        }
-    }
+    resp = response(
+        code=code,
+        headers={'Location': url, **headers}
+    )
     print(resp)
     return resp

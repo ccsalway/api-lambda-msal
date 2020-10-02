@@ -38,9 +38,7 @@ def lambda_handler(event, context):
                 if qs_data.get('state') != session.session_id:  # possible session forgery
                     return redirect(LOGIN_PATH)
                 if "error" in qs_data:  # Authentication/Authorization failure
-                    return response(render_template("auth_error.html", result=qs_data), headers={
-                        'Content-Type': "text/html"
-                    }, code=401)
+                    return response(render_template("auth_error.html", result=qs_data), code=401)
                 if qs_data.get('code'):
                     cache = load_cache(session.data)
                     result = build_msal_app(cache).acquire_token_by_authorization_code(
@@ -48,9 +46,7 @@ def lambda_handler(event, context):
                         scopes=SCOPE,  # Misspelled scope would cause an HTTP 400 error here
                         redirect_uri=request['url'] + LOGIN_CALLBACK)
                     if "error" in result:
-                        return response(render_template("auth_error.html", result=result), headers={
-                            'Content-Type': "text/html"
-                        }, code=401)
+                        return response(render_template("auth_error.html", result=result), code=401)
                     session.session_state = qs_data.get('session_state')  # used by AAD single-sign-out
                     session.data["user"] = result.get("id_token_claims")
                     if cache.has_state_changed:
@@ -73,7 +69,6 @@ def lambda_handler(event, context):
 
             elif path == LOGOUT_COMPLETE:
                 return response(render_template("auth_logged_out.html"), headers={
-                    'Content-Type': "text/html",
                     "Set-Cookie": f"{SESSION_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"
                 })
 
