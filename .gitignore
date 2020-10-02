@@ -5,3 +5,5 @@ package/
 
 .DS_Store
 .env
+
+packaged.yaml
