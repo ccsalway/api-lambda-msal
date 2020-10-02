@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  lambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./deploy/lambda_function.zip
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.8
+      Timeout: 60
+      Environment:
+        Variables:
+          AUTHORITY: https://login.microsoftonline.com/68b865d5-cf18-4b2b-82a4-a4eddb9c5237
+          CLIENT_ID: 82fe467c-55ca-4f53-b68f-b0e29abec4f6
+          CLIENT_SECRET: GuLTVI9Ml4.77GR1q~pgj~1AY8Whs-~qP1
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:DeleteItem
+                - dynamodb:GetItem
+                - dynamodb:Query
+              Resource:
+                - arn:aws:dynamodb:*:*:table/lambda_sessions/index/*
+                - arn:aws:dynamodb:*:*:table/lambda_sessions
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Method: ANY
+            Path: /{proxy+}

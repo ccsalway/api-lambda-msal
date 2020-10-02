@@ -17,9 +17,9 @@ Acronyms: AAD - Azure Active Directory, DDB - DynamoDB
 - Create an AWS HTTP API Gateway (2.0) and route `ALL /{proxy+}` to the Lambda  
 - Setup DNS if using it
 - Update the following fields in the AAD application:
-  - `Branding / Home page URL` - set to https://{domain name}
-  - `Authentication / Redirect URI` - add https://{domain name}/auth/login/callback
-  - `Authentication / Logout URL` - set to https://{domain name}/auth/logout/callback
+  - `Branding / Home page URL` - set to `https://{domain name}`
+  - `Authentication / Redirect URI` - add `https://{domain name}/auth/login/callback`
+  - `Authentication / Logout URL` - set to `https://{domain name}/auth/logout/callback`
   
   
 ## Process
