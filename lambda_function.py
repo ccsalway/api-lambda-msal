@@ -72,7 +72,7 @@ def lambda_handler(event, context):
                 return {'statusCode': 200}
 
             elif path == LOGOUT_COMPLETE:
-                return response(render_template("logged_out.html"), headers={
+                return response(render_template("auth_logged_out.html"), headers={
                     'Content-Type': "text/html",
                     "Set-Cookie": f"{SESSION_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"
                 })
