@@ -36,10 +36,9 @@ Acronyms: AAD - Azure Active Directory, DDB - DynamoDB
  - Once logged in, the work passes to `lambda_views.py` function `lambda_views.router(request, session)` for processing
 
 ### Logout
-- User is directed to AAD logout process
-- Once logged out, AAD makes an ajax callback to `LOGOUT_CALLBACK` to request deletion of the session
-- Finally, the user is redirected to `LOGOUT_COMPLETE`
-
+- User is directed to the AAD logout process
+- Once logged out, AAD makes an ajax callback to `LOGOUT_CALLBACK` where the `lambda_handler` deletes the session from DDB
+- AAD then redirects the user to `LOGOUT_COMPLETE` where the session cookie is expired
 
 ## DynamoDB (DDB) setup
 Creates the table with a secondary index, and sets a time-to-live field
