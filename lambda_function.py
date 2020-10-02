@@ -30,7 +30,7 @@ def lambda_handler(event, context):
                 }).save()
                 redirect_uri = request['url'] + LOGIN_CALLBACK
                 return redirect(build_auth_url(session.session_id, SCOPE, redirect_uri), headers={
-                    "Set-Cookie": f"{SESSION_COOKIE_NAME}={session.session_id};path=/",
+                    "Set-Cookie": f"{SESSION_COOKIE_NAME}={session.session_id};path=/;SameSite=Lax;Secure",
                 })
 
             elif path == LOGIN_CALLBACK:
@@ -69,7 +69,7 @@ def lambda_handler(event, context):
 
             elif path == LOGOUT_COMPLETE:
                 return response(render_template("auth_logged_out.html"), headers={
-                    "Set-Cookie": f"{SESSION_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=None"
+                    "Set-Cookie": f"{SESSION_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=None;Secure"
                 })
 
         # simple authorisation test
