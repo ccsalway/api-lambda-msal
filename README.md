@@ -24,7 +24,7 @@ Acronyms: AAD - Azure Active Directory, DDB - DynamoDB
   
 ## Process
 
-#### Login 
+### Login 
 - API Gateway forwards request payload to Lambda
 - Lambda handler parses the request, extracting key parameters like querystring, cookies, headers, etc
 - Checks for and, if exists, retrieves session data from DDB using a session cookie as the ID
@@ -35,7 +35,7 @@ Acronyms: AAD - Azure Active Directory, DDB - DynamoDB
     - login is checked, and if good, redirects the user to their initial request, else redirects to `LOGIN_PATH`
  - Once logged in, the work passes to `lambda_views.py` function `lambda_views.router(request, session)` for processing
 
-#### Logout
+### Logout
 - User is directed to AAD logout process
 - Once logged out, AAD makes an ajax callback to `LOGOUT_CALLBACK` to request deletion of the session
 - Finally, the user is redirected to `LOGOUT_COMPLETE`
