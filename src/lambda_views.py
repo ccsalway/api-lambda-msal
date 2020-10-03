@@ -4,7 +4,8 @@ from response_helper import response, render_template, serve_file
 
 def index(request, session):
     user = session.data.get('user', {})
-    return response(render_template('index.html', user=user, config=config))
+    compress = 'gzip' in request['headers'].get('accept-encoding', '')
+    return response(render_template('index.html', user=user, config=config), compress)
 
 
 def router(request, session):
@@ -17,7 +18,8 @@ def router(request, session):
 
         # static files
         if path.startswith('/static'):
-            return serve_file(f'{config.PWD}/{path}')
+            compress = 'gzip' in request['headers'].get('accept-encoding', '')
+            return serve_file(f'{config.PWD}/{path}', compress)
 
         # index page
         if path == '/' or path == '/index':
