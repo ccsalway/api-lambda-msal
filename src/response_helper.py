@@ -1,7 +1,7 @@
 import datetime
 import decimal
-import json
 import gzip
+import json
 from base64 import b64encode
 from mimetypes import guess_type
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -38,17 +38,19 @@ def compress_content(content: bytes, content_type: str):
     return None
 
 
-def response(body: str = '', compress: bool = False, is_base64_encoded: bool = False, headers: dict = None, code: int = 200):
+def format_response(response: dict, body: str = '', is_base64_encoded: bool = False, headers: dict = None, code: int = 200):
+    # response = {'id': <string>}
+    if code == 204: body = ''  # no content
     if headers is None: headers = {}
     content_type = headers.get('Content-Type', 'text/html')
-    if compress:
+    if 'gzip' in response.get('accept-encoding', ''):
         gzipped = compress_content(body.encode('utf-8'), content_type)
         if gzipped:
             headers['Content-Encoding'] = 'gzip'
             body = b64encode(gzipped).decode('utf-8')
             content_type += '; charset=utf-8'
             is_base64_encoded = True
-    resp = {
+    response.update({
         'statusCode': code,
         'headers': {
             'Access-Control-Allow-Origin': "*",
@@ -57,55 +59,57 @@ def response(body: str = '', compress: bool = False, is_base64_encoded: bool = F
         },
         'body': body,
         'isBase64Encoded': is_base64_encoded
-    }
-    # print(resp)  # may contain secret data
-    return resp
+    })
+    # DO NOT log the Location header as it may contain secret data such as clientId and sessionToken
+    # DO NOT log the body when status is 2xx as it may contain secret data such as form data
+    content = '<content hidden>' if body and code < 400 else body
+    print(json.dumps({'RequestId': response['id'], 'Status': code, 'Content': content}))
+    return response
 
 
-def response_json(body: dict, compress: bool = False, headers: dict = None, code: int = 200):
+def response_json(response: dict, body: dict, headers: dict = None, code: int = 200):
     if headers is None: headers = {}
-    return response(
-        code=code,
-        headers={
-            'Content-Type': "application/json",
-            **headers
-        },
+    return format_response(
+        response,
+        headers={'Content-Type': "application/json", **headers},
         body=json.dumps(body, default=json_serialize),
-        compress=compress
+        code=code,
     )
 
 
-def redirect(url: str, headers: dict = None, code: int = 302):
+def redirect(response: dict, url: str, headers: dict = None, code: int = 302):
     if headers is None: headers = {}
-    return response(
+    return format_response(
+        response,
         code=code,
         headers={'Location': url, **headers}
     )
 
 
-def serve_file(path: str, compress: bool = False):
+def serve_file(response: dict, path: str):
     """ This is not designed for large files, which should be served from S3 with signed URL's. """
-    if not os.path.isfile(path):
-        return response('File Not Found', code=404)
+    fullpath = cwd + path
+    if not os.path.isfile(fullpath):
+        return format_response(response, 'File Not Found', code=404)
     # Content Type
-    content_type, encoding = guess_type(path)
+    content_type, encoding = guess_type(fullpath)
     if not content_type:
         content_type = "application/octet-stream"
     # Content Length
-    content_length = os.path.getsize(path)  # bytes
+    content_length = os.path.getsize(fullpath)  # bytes
     # Content
-    with open(path, 'rb') as f:
+    with open(fullpath, 'rb') as f:
         content = f.read()
     # Compress
     encoding_header = {}
-    if compress:
+    if 'gzip' in response.get('accept-encoding', ''):
         gzipped = compress_content(content, content_type)
         if gzipped:
             content = gzipped
             content_type += f'; charset={encoding or "utf-8"}'
             encoding_header = {'Content-Encoding': 'gzip'}
-    # return file
-    return {
+    # build response
+    response.update({
         'statusCode': 200,
         'headers': {
             'Access-Control-Allow-Origin': "*",
@@ -115,4 +119,6 @@ def serve_file(path: str, compress: bool = False):
         },
         'body': b64encode(content).decode('utf-8'),
         'isBase64Encoded': True
-    }
+    })
+    print(json.dumps({'RequestId': response['id'], 'Status': 200, 'File': fullpath, 'Content-Type': content_type, 'Content-Length': content_length}))
+    return response

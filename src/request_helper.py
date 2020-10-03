@@ -1,6 +1,6 @@
+import json
 import re
 from base64 import b64decode
-from json import loads, JSONDecodeError
 from urllib.parse import parse_qsl, urlencode
 import msal
 from config import *
@@ -26,7 +26,7 @@ def build_auth_url(state: str, scopes: list, redirect_uri: str):
 
 
 # API functions
-def parse_request(event):
+def parse_request(event, context):
     # ref: https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
 
     # assign request context
@@ -76,8 +76,8 @@ def parse_request(event):
         # application/json
         if content_type.lower().startswith('application/json'):
             try:
-                form_data = loads(body)
-            except JSONDecodeError as e:
+                form_data = json.loads(body)
+            except json.JSONDecodeError as e:
                 raise UserWarning(str(e))
         # x-www-form-urlencoded
         elif content_type.lower().startswith('application/x-www-form-urlencoded'):
@@ -111,5 +111,5 @@ def parse_request(event):
         'event': event, 'stage': stage, 'source_ip': source_ip,
         'url': url, 'path': path, 'method': method, 'headers': headers,
         'cookies': cookies, 'form_data': form_data, 'query_data': query_data,
-        'querystring': querystring,
+        'querystring': querystring, 'id': context.aws_request_id
     }

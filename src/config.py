@@ -1,7 +1,7 @@
 import os
 
 # current directory
-PWD = os.path.dirname(os.path.abspath(__file__))
+cwd = os.path.dirname(os.path.abspath(__file__)).rstrip('/')
 
 # OIDC
 AUTHORITY = os.environ['AUTHORITY']
