@@ -1,5 +1,8 @@
+import os
 import config
-from lambda_helper import response, render_template
+from response_helper import response, render_template, serve_file
+
+dot = os.path.dirname(os.path.abspath(__file__))
 
 
 def index(request, session):
@@ -14,6 +17,10 @@ def router(request, session):
 
     # path handlers
     if method == 'GET':
+
+        # static files
+        if path.startswith('/static'):
+            return serve_file(f'{dot}/{path}')
 
         # index page
         if path == '/' or path == '/index':

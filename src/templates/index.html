@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Homepage</title>
+    <link rel="stylesheet" type="text/css" href="/static/stylesheet.css">
 </head>
 <body>
+<div><img src="/static/sky-logo.png" alt="Sky logo"></div>
 <h5>Welcome {{ user.get('name') }} &lt;{{ user.get('preferred_username') }}&gt;</h5>
 <a href="{{ config.LOGOUT_PATH }}">Logout of Azure</a>
 </body>

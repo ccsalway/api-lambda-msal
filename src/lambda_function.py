@@ -1,8 +1,10 @@
 from urllib.parse import quote_plus, unquote_plus
-
 import lambda_views
-from lambda_helper import *
+from request_helper import *
+from response_helper import *
 from session_dynamodb import DynamoDbSessionInterface
+
+dot = os.path.dirname(os.path.abspath(__file__))
 
 
 def lambda_handler(event, context):
@@ -10,6 +12,7 @@ def lambda_handler(event, context):
     try:
         # parse the request
         request = parse_request(event)
+        print(request)
 
         # extract values
         path = request['path']
@@ -22,6 +25,9 @@ def lambda_handler(event, context):
 
         # auth path handlers
         if method == 'GET':
+
+            if path == '/favicon.ico':
+                return serve_file(f'{dot}/static/favicon.ico')
 
             if path == LOGIN_PATH:
                 session.create({
