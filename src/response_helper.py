@@ -4,11 +4,11 @@ import gzip
 import json
 from base64 import b64encode
 from mimetypes import guess_type
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from config import *
 
 jinja = Environment(
-    loader=PackageLoader(__name__),
+    loader=FileSystemLoader(cwd + TEMPLATES_PATH),
     autoescape=select_autoescape(['html'])
 )
 
@@ -81,8 +81,8 @@ def redirect(response: dict, url: str, headers: dict = None, code: int = 302):
     if headers is None: headers = {}
     return format_response(
         response,
+        headers={'Location': url, **headers},
         code=code,
-        headers={'Location': url, **headers}
     )
 
 
@@ -117,7 +117,7 @@ def serve_file(response: dict, path: str):
             'Content-Length': content_length,
             **encoding_header
         },
-        'body': b64encode(content).decode('utf-8'),
+        'body': b64encode(content).decode("utf-8"),
         'isBase64Encoded': True
     })
     print(json.dumps({'RequestId': response['id'], 'Status': 200, 'File': fullpath, 'Content-Type': content_type, 'Content-Length': content_length}))

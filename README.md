@@ -11,7 +11,9 @@ Prerequisites
 
 Setup - _see `deploy.sh` which can perform steps 3,4,5 for you_
 1. Fork this repo for your new webapp
-2. Create your views in `src/lambda_views.py` - see file for examples
+2. Create your views in the `views` directory - see file for example
+    - each view needs a `view(request, response, session)` function to receive the request
+    - static files are handled by the `lambda_function` and should be stored in `STATIC_PATH`
 3. Create an IAM Role for the lambda to assume with the permission given below
 4. Upload your app and assign the Lambda the IAM Role from the previous step, and the following
  environment variables from the AAD application:

@@ -1,8 +1,8 @@
 from urllib.parse import quote_plus, unquote_plus
-import lambda_views
 from request_helper import *
 from response_helper import *
 from session_dynamodb import DynamoDbSessionInterface
+from views import load_module
 
 
 def lambda_handler(event, context):
@@ -89,8 +89,25 @@ def lambda_handler(event, context):
             if request['querystring']: request['path'] += f"?{request['querystring']}"
             return redirect(response, f"{LOGIN_PATH}?referer={quote_plus(request['path'])}")
 
-        # logged in, continue to your app
-        return lambda_views.router(request, response, session)
+        # serve static files
+        if method == 'GET' and path.startswith(STATIC_PATH):
+            return serve_file(response, path)
+
+        # path mapping to view
+        f = VIEWS_PATH
+        for p in path.split('/')[1:]:  # first is always blank
+            if not p: continue
+            f += '/' + p
+            if os.path.isdir(cwd + f):  # directories take precedence
+                continue
+            if os.path.isfile(cwd + f + '.py'):
+                return load_module(f, request, response, session)
+        else:
+            f += '/' + DEFAULT_VIEW
+            if os.path.isfile(cwd + f + '.py'):
+                return load_module(f, request, response, session)
+
+        return format_response(response, "Page Not Found", code=404)
 
     except UserWarning as e:
         return format_response(response, str(e), code=400)

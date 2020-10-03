@@ -21,3 +21,10 @@ LOGIN_CALLBACK = LOGIN_PATH + "/callback"  # register URL + this path with oauth
 LOGOUT_PATH = '/auth/logout'
 LOGOUT_CALLBACK = LOGOUT_PATH + "/callback"  # register URL + this path with oauth app as logout url
 LOGOUT_COMPLETE = LOGOUT_PATH + '/complete'
+
+# paths
+VIEWS_PATH = '/views'
+DEFAULT_VIEW = 'default'
+DEFAULT_FUNC = 'view'
+STATIC_PATH = '/static'
+TEMPLATES_PATH = '/templates'
