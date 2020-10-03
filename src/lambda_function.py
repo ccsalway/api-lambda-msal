@@ -18,6 +18,9 @@ def lambda_handler(event, context):
         cookies = request['cookies']
         qs_data = request['query_data']
 
+        # log request
+        print(f"{{\"Method\": \"{method}\", \"Path\": \"{path}\", \"SourceIP\": \"{request['source_ip']}\"}}")
+
         # initialise a session
         session = DynamoDbSessionInterface(DYNAMODB_SESSIONS_TABLE)
 
