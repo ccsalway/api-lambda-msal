@@ -1,8 +1,5 @@
-import os
 import config
 from response_helper import response, render_template, serve_file
-
-dot = os.path.dirname(os.path.abspath(__file__))
 
 
 def index(request, session):
@@ -20,7 +17,7 @@ def router(request, session):
 
         # static files
         if path.startswith('/static'):
-            return serve_file(f'{dot}/{path}')
+            return serve_file(f'{config.PWD}/{path}')
 
         # index page
         if path == '/' or path == '/index':

@@ -4,8 +4,6 @@ from request_helper import *
 from response_helper import *
 from session_dynamodb import DynamoDbSessionInterface
 
-dot = os.path.dirname(os.path.abspath(__file__))
-
 
 def lambda_handler(event, context):
     print(event)
@@ -27,7 +25,7 @@ def lambda_handler(event, context):
         if method == 'GET':
 
             if path == '/favicon.ico':
-                return serve_file(f'{dot}/static/favicon.ico')
+                return serve_file(f'{PWD}/static/favicon.ico')
 
             if path == LOGIN_PATH:
                 session.create({

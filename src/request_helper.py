@@ -2,9 +2,7 @@ import re
 from base64 import b64decode
 from json import loads, JSONDecodeError
 from urllib.parse import parse_qsl, urlencode
-
 import msal
-
 from config import *
 
 

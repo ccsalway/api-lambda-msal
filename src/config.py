@@ -1,5 +1,8 @@
 import os
 
+# current directory
+PWD = os.path.dirname(os.path.abspath(__file__))
+
 # OIDC
 AUTHORITY = os.environ['AUTHORITY']
 CLIENT_ID = os.environ['CLIENT_ID']

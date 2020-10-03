@@ -57,18 +57,18 @@ def redirect(url: str, headers: dict = None, code: int = 302):
     )
 
 
-def serve_file(filename: str):
+def serve_file(path: str):
     """ This is not designed for large files, which should be served from S3 with signed URL's. """
-    if not os.path.isfile(filename):
+    if not os.path.isfile(path):
         return response('File Not Found', code=404)
     # Content Type
-    content_type, enc = guess_type(filename)
+    content_type, enc = guess_type(path)
     if not content_type:
         content_type = "application/octet-stream"
     # Content Length
-    content_length = os.path.getsize(filename)
+    content_length = os.path.getsize(path)
     # Content
-    with open(filename, 'rb') as f:
+    with open(path, 'rb') as f:
         content = f.read()
     return response(
         headers={
