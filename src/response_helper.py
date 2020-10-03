@@ -36,7 +36,7 @@ def response(body: str = '', is_base64_encoded: bool = False, headers: dict = No
         'body': body,
         'isBase64Encoded': is_base64_encoded
     }
-    print(resp)
+    if code != 200: print(resp)  # may contain secret data
     return resp
 
 

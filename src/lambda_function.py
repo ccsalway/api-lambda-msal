@@ -6,11 +6,11 @@ from session_dynamodb import DynamoDbSessionInterface
 
 
 def lambda_handler(event, context):
-    print(event)
+    # print(event)  # may contain secret data
     try:
         # parse the request
         request = parse_request(event)
-        print(request)
+        # print(request)  # may contain secret data
 
         # extract values
         path = request['path']
