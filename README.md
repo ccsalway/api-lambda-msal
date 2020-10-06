@@ -1,4 +1,4 @@
-# aws-api-lambda-msal
+# AWS Lambda Webapp template
 Base source code for creating a lambda application that sits behind AAD authentication using OIDC. 
 
 Acronyms: AAD - Azure Active Directory, DDB - DynamoDB
